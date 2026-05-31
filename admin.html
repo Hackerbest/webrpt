@@ -279,16 +279,18 @@
     }
 
     function safeFileName(name) {
-      const ext = (name.split(".").pop() || "mp3").toLowerCase();
-      const base = name
-        .replace(/\.[^/.]+$/, "")
-        .normalize("NFKD")
-        .replace(/[^\wก-๙-]+/g, "-")
-        .replace(/-+/g, "-")
-        .replace(/^-|-$/g, "")
-        .slice(0, 80) || "song";
+      const allowedExt = ["mp3", "wav", "ogg", "flac", "aac", "m4a"];
+      let ext = (name.split(".").pop() || "mp3").toLowerCase();
 
-      return `${base}-${Date.now()}.${ext}`;
+      if (!allowedExt.includes(ext)) {
+        ext = "mp3";
+      }
+
+      const randomText = Math.random().toString(36).slice(2, 10);
+
+      // Supabase Storage ไม่รับ path ที่มีภาษาไทย/อักขระพิเศษบางตัว
+      // เลยตั้งชื่อไฟล์ใหม่เป็นอังกฤษ+ตัวเลขเท่านั้น แต่ชื่อเพลงในเว็บยังใช้ภาษาไทยได้ตามปกติ
+      return `song-${Date.now()}-${randomText}.${ext}`;
     }
 
     function isAudioFile(file) {
