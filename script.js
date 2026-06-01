@@ -204,7 +204,7 @@ function renderProductList(listy = "all") {
       <article class="product-card">
         <div class="product-row">
           <div class="product-cover">
-            ${song.coverUrl ? `<img class="cover-img" src="${song.coverUrl}" alt="">` : "♫"}
+            ♫
             ${active ? `<div class="bouncing"><span></span><span></span><span></span><span></span><span></span></div>` : ""}
           </div>
           <div class="product-info">
@@ -238,7 +238,7 @@ function renderSongs() {
         return `
           <article class="song-card" style="--i:${song.id}">
             <div class="cover">
-              ${song.coverUrl ? `<img class="cover-img" src="${song.coverUrl}" alt="">` : `<span class="music-big">♫</span>`}
+              <span class="music-big">♫</span>
               ${active ? `<div class="bouncing"><span></span><span></span><span></span><span></span><span></span></div>` : ""}
             </div>
             <div class="card-body">
