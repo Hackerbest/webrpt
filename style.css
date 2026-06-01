@@ -592,30 +592,3 @@ body {
   font-size: 20px;
   white-space: nowrap;
 }
-
-
-/* ==============================
-   COVER IMAGES
-   ============================== */
-.cover-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 1;
-}
-
-.cover .music-big {
-  position: relative;
-  z-index: 2;
-}
-
-.cover .bouncing,
-.product-cover .bouncing {
-  z-index: 5;
-}
-
-.product-cover .cover-img {
-  border-radius: 10px;
-}
