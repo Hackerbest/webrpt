@@ -311,7 +311,28 @@ async function loadProductsFromSupabase() {
       return;
     }
 
-    mockSongs = (data || []).map(item => ({
+    let rows = data || [];
+
+    // Fallback: try direct PostgREST when client query returns empty.
+    if (!rows.length) {
+      const restUrl = `${SUPABASE_URL}/rest/v1/products?select=*&order=id.asc`;
+      const restRes = await fetch(restUrl, {
+        method: "GET",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      });
+
+      if (restRes.ok) {
+        const restData = await restRes.json();
+        if (Array.isArray(restData)) rows = restData;
+      } else {
+        console.warn("REST fallback failed:", restRes.status, restRes.statusText);
+      }
+    }
+
+    mockSongs = rows.map(item => ({
       id: item.id,
       title: item.title,
       artist: item.artist || "RAPEEPHAT REMIX",
@@ -322,6 +343,10 @@ async function loadProductsFromSupabase() {
       audioUrl: item.audio_url || "",
       coverUrl: item.cover_url || ""
     }));
+
+    if (!mockSongs.length) {
+      console.warn("No products loaded. Check products rows, RLS SELECT policy for anon, and SUPABASE keys.");
+    }
 
     renderPlaylistTabs();
     renderSongs();
