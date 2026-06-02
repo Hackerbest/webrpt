@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - เพิ่มเพลง</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Kanit', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #faf5ff, #fdf2f8);
+      color: #111827;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .box {
+      width: 100%;
+      max-width: 560px;
+      background: #fff;
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 18px 45px rgba(168, 85, 247, .18);
+      border: 1px solid #f3e8ff;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      color: #7e22ce;
+      font-size: clamp(30px, 6vw, 42px);
+      line-height: 1.1;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      margin-top: 6px;
+      padding: 12px 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 150px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: #a855f7;
+      box-shadow: 0 0 0 3px #f3e8ff;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 16px;
+      border: 0;
+      border-radius: 12px;
+      background: #a855f7;
+      color: #fff;
+      padding: 13px 16px;
+      font-family: inherit;
+      font-size: 16px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    button:hover { background: #9333ea; transform: translateY(-1px); }
+    button:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+    .logout {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .logout:hover {
+      background: #e5e7eb;
+    }
+
+    .msg {
+      margin-top: 14px;
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+
+    .hidden { display: none; }
+
+    .drop-zone {
+      margin-top: 8px;
+      border: 2px dashed #d8b4fe;
+      border-radius: 18px;
+      padding: 24px 18px;
+      text-align: center;
+      background: linear-gradient(135deg, #faf5ff, #fff);
+      color: #7e22ce;
+      cursor: pointer;
+      transition: .2s;
+      user-select: none;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: #a855f7;
+      background: #f3e8ff;
+      transform: translateY(-2px);
+    }
+
+    .drop-icon {
+      font-size: 38px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .drop-title {
+      font-weight: 700;
+      font-size: 17px;
+      margin: 0;
+    }
+
+    .drop-desc {
+      margin: 6px 0 0;
+      color: #6b7280;
+      font-size: 13px;
+    }
+
+    .file-info {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #374151;
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .progress-wrap {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #f3e8ff;
+      margin-top: 12px;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      transition: width .25s;
+    }
+
+    .hint {
+      color: #6b7280;
+      font-size: 13px;
+      margin: 8px 0 0;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div id="loginBox">
+      <h1>เข้าสู่ระบบแอดมิน</h1>
+
+      <label>อีเมล</label>
+      <input id="email" type="email" placeholder="email" />
+
+      <label>รหัสผ่าน</label>
+      <input id="password" type="password" placeholder="password" />
+
+      <button id="loginBtn">เข้าสู่ระบบ</button>
+      <p id="loginMsg" class="msg"></p>
+    </div>
+
+    <div id="adminBox" class="hidden">
+      <h1>เพิ่มเพลงใหม่</h1>
+
+      <label>ชื่อเพลง</label>
+      <input id="title" placeholder="เช่น เพลงแอโลบิค... ใส่ไรก็ใส่" />
+
+      <label>ศิลปิน</label>
+      <input id="artist" value="RAPEEPHAT REMIX" />
+
+      <label>ราคา</label>
+      <input id="price" type="number" value="300" />
+
+      <label>เวลาเพลง</label>
+      <input id="duration" placeholder="ไม่ต้องใส่ระบบมันจะเด้งให้เอง" />
+
+      <label>เวลาเพลงเป็นวินาที</label>
+      <input id="durationSecs" type="number" placeholder="ไม่ต้องใส่ระบบมันจะเด้งให้เอง" />
+
+      <label>BPM / หมวด</label>
+      <input id="category" placeholder="ใส่ BPM ของเพลง 170" />
+
+      <label>ไฟล์เพลง MP3 / WAV / OGG / FLAC / AAC</label>
+      <input id="audioFile" type="file" accept="audio/*,.mp3,.wav,.ogg,.flac,.aac" hidden />
+
+      <div id="dropZone" class="drop-zone">
+        <span class="drop-icon">🎵</span>
+        <p class="drop-title">ลากไฟล์เพลงมาวางตรงนี้</p>
+        <p class="drop-desc">หรือคลิกเพื่อเลือกไฟล์จากเครื่อง</p>
+      </div>
+
+      <div id="fileInfo" class="file-info hidden"></div>
+
+      <div id="progressWrap" class="progress-wrap hidden">
+        <div id="progressBar" class="progress-bar"></div>
+      </div>
+
+      <p class="hint">ไฟล์จะถูกอัปโหลดเข้า Supabase Storage bucket ชื่อ <b>songs</b> แล้วบันทึกลิงก์ลงช่อง <b>audio_url</b> ให้อัตโนมัติ</p>
+
+      <label>ใส่รูปปก</label>
+      <input id="coverUrl" placeholder="ไม่ใส่ก็ได้" />
+
+      <label>Upload cover image (click or drag & drop)</label>
+      <input id="coverFile" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.gif" hidden />
+      <div id="coverDropZone" class="drop-zone">
+        <span class="drop-icon">🖼️</span>
+        <p class="drop-title">ลากไฟล์เพลงมาวางตรงนี้</p>
+        <p class="drop-desc">หรือคลิกเพื่อเลือกไฟล์จากเครื่อง</p>
+      </div>
+      <div id="coverFileInfo" class="file-info hidden"></div>
+
+      <label>รายละเอียดเพิ่มเติม</label>
+      <textarea id="productDetails" placeholder="ใส่รายละเอียดสินค้า เช่น รายชื่อเพลงในชุด เงื่อนไขการแก้ไข วิธีติดต่อ หรือรายละเอียดอื่นๆ"></textarea>
+
+      <button id="saveBtn">อัปโหลดและบันทึกเพลง</button>
+      <button id="logoutBtn" class="logout">ออกจากระบบ</button>
+
+      <p id="saveMsg" class="msg"></p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://qguunpxlgswkqnpwhcnc.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable__L4vzMI9rSqZs33TkUZHFg_UTbupETn";
+    const STORAGE_BUCKET = "songs";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+    const loginBox = document.getElementById("loginBox");
+    const adminBox = document.getElementById("adminBox");
+    const loginMsg = document.getElementById("loginMsg");
+    const saveMsg = document.getElementById("saveMsg");
+    const saveBtn = document.getElementById("saveBtn");
+
+    const audioFileInput = document.getElementById("audioFile");
+    const dropZone = document.getElementById("dropZone");
+    const fileInfo = document.getElementById("fileInfo");
+    const coverFileInput = document.getElementById("coverFile");
+    const coverDropZone = document.getElementById("coverDropZone");
+    const coverFileInfo = document.getElementById("coverFileInfo");
+    const progressWrap = document.getElementById("progressWrap");
+    const progressBar = document.getElementById("progressBar");
+
+    let selectedAudioFile = null;
+    let selectedCoverFile = null;
+
+    function setProgress(percent) {
+      progressWrap.classList.remove("hidden");
+      progressBar.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+    }
+
+    function resetProgress() {
+      progressBar.style.width = "0%";
+      progressWrap.classList.add("hidden");
+    }
+
+    function formatFileSize(bytes) {
+      if (!bytes) return "0 KB";
+      const mb = bytes / 1024 / 1024;
+      if (mb >= 1) return `${mb.toFixed(2)} MB`;
+      return `${(bytes / 1024).toFixed(1)} KB`;
+    }
+
+    function formatDuration(seconds) {
+      const secs = Math.round(seconds || 0);
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${m}:${String(s).padStart(2, "0")}`;
+    }
+
+    function safeFileName(name) {
+      const allowedExt = ["mp3", "wav", "ogg", "flac", "aac", "m4a"];
+      let ext = (name.split(".").pop() || "mp3").toLowerCase();
+
+      if (!allowedExt.includes(ext)) {
+        ext = "mp3";
+      }
+
+      const randomText = Math.random().toString(36).slice(2, 10);
+
+      // Supabase Storage ไม่รับ path ที่มีภาษาไทย/อักขระพิเศษบางตัว
+      // เลยตั้งชื่อไฟล์ใหม่เป็นอังกฤษ+ตัวเลขเท่านั้น แต่ชื่อเพลงในเว็บยังใช้ภาษาไทยได้ตามปกติ
+      return `song-${Date.now()}-${randomText}.${ext}`;
+    }
+
+    function isAudioFile(file) {
+      const audioExt = /\.(mp3|wav|ogg|flac|aac|m4a)$/i;
+      return file && (file.type.startsWith("audio/") || audioExt.test(file.name));
+    }
+
+    function fillDurationFromFile(file) {
+      return new Promise(resolve => {
+        const tempUrl = URL.createObjectURL(file);
+        const tempAudio = new Audio();
+
+        tempAudio.addEventListener("loadedmetadata", () => {
+          const secs = Math.round(tempAudio.duration || 0);
+
+          if (secs > 0) {
+            const durationInput = document.getElementById("duration");
+            const durationSecsInput = document.getElementById("durationSecs");
+
+            if (!durationInput.value.trim()) durationInput.value = formatDuration(secs);
+            if (!durationSecsInput.value.trim()) durationSecsInput.value = secs;
+          }
+
+          URL.revokeObjectURL(tempUrl);
+          resolve();
+        });
+
+        tempAudio.addEventListener("error", () => {
+          URL.revokeObjectURL(tempUrl);
+          resolve();
+        });
+
+        tempAudio.src = tempUrl;
+      });
+    }
+
+    async function handleSelectedFile(file) {
+      if (!isAudioFile(file)) {
+        saveMsg.textContent = "กรุณาเลือกไฟล์เพลงเท่านั้น เช่น .mp3 .wav .ogg .flac .aac";
+        return;
+      }
+
+      selectedAudioFile = file;
+      fileInfo.classList.remove("hidden");
+      fileInfo.textContent = `เลือกไฟล์แล้ว: ${file.name} (${formatFileSize(file.size)})`;
+      saveMsg.textContent = "";
+      resetProgress();
+
+      const titleInput = document.getElementById("title");
+      if (!titleInput.value.trim()) {
+        titleInput.value = file.name.replace(/\.(mp3|wav|ogg|flac|aac|m4a)$/i, "");
+      }
+
+      await fillDurationFromFile(file);
+    }
+
+    function isImageFile(file) {
+      const imageExt = /\.(jpg|jpeg|png|webp|gif)$/i;
+      return file && (file.type.startsWith("image/") || imageExt.test(file.name));
+    }
+
+    async function handleSelectedCoverFile(file) {
+      if (!isImageFile(file)) {
+        saveMsg.textContent = "Please choose image file (.jpg, .png, .webp)";
+        return;
+      }
+      selectedCoverFile = file;
+      if (coverFileInfo) {
+        coverFileInfo.classList.remove("hidden");
+        coverFileInfo.textContent = `Selected cover: ${file.name} (${formatFileSize(file.size)})`;
+      }
+      saveMsg.textContent = "";
+    }
+
+    async function checkSession() {
+      const { data } = await supabaseClient.auth.getSession();
+
+      if (data.session) {
+        loginBox.classList.add("hidden");
+        adminBox.classList.remove("hidden");
+      } else {
+        loginBox.classList.remove("hidden");
+        adminBox.classList.add("hidden");
+      }
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      loginMsg.textContent = "กำลังเข้าสู่ระบบ...";
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        loginMsg.textContent = "เข้าสู่ระบบไม่สำเร็จ: " + error.message;
+        return;
+      }
+
+      loginMsg.textContent = "";
+      checkSession();
+    });
+
+    dropZone.addEventListener("click", () => audioFileInput.click());
+    if (coverDropZone) coverDropZone.addEventListener("click", () => coverFileInput.click());
+
+    audioFileInput.addEventListener("change", async event => {
+      const file = event.target.files[0];
+      if (file) await handleSelectedFile(file);
+    });
+
+    if (coverFileInput) {
+      coverFileInput.addEventListener("change", async event => {
+        const file = event.target.files[0];
+        if (file) await handleSelectedCoverFile(file);
+      });
+    }
+
+    ["dragenter", "dragover"].forEach(eventName => {
+      dropZone.addEventListener(eventName, event => {
+        event.preventDefault();
+        event.stopPropagation();
+        dropZone.classList.add("dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach(eventName => {
+      dropZone.addEventListener(eventName, event => {
+        event.preventDefault();
+        event.stopPropagation();
+        dropZone.classList.remove("dragover");
+      });
+    });
+
+    dropZone.addEventListener("drop", async event => {
+      const file = event.dataTransfer.files[0];
+      if (file) await handleSelectedFile(file);
+    });
+
+    if (coverDropZone) {
+      ["dragenter", "dragover"].forEach(eventName => {
+        coverDropZone.addEventListener(eventName, event => {
+          event.preventDefault();
+          event.stopPropagation();
+          coverDropZone.classList.add("dragover");
+        });
+      });
+
+      ["dragleave", "drop"].forEach(eventName => {
+        coverDropZone.addEventListener(eventName, event => {
+          event.preventDefault();
+          event.stopPropagation();
+          coverDropZone.classList.remove("dragover");
+        });
+      });
+
+      coverDropZone.addEventListener("drop", async event => {
+        const file = event.dataTransfer.files[0];
+        if (file) await handleSelectedCoverFile(file);
+      });
+    }
+
+    async function uploadAudioToStorage(file) {
+      const filePath = `audio/${safeFileName(file.name)}`;
+
+      setProgress(20);
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from(STORAGE_BUCKET)
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type || "audio/mpeg"
+        });
+
+      if (uploadError) throw uploadError;
+
+      setProgress(75);
+
+      const { data } = supabaseClient.storage
+        .from(STORAGE_BUCKET)
+        .getPublicUrl(filePath);
+
+      setProgress(100);
+
+      return data.publicUrl;
+    }
+
+    async function uploadCoverToStorage(file) {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const filePath = `covers/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from(STORAGE_BUCKET)
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type || "image/jpeg"
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabaseClient.storage
+        .from(STORAGE_BUCKET)
+        .getPublicUrl(filePath);
+
+      return data.publicUrl;
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      try {
+        saveBtn.disabled = true;
+        saveMsg.textContent = "กำลังตรวจสอบข้อมูล...";
+
+        const title = document.getElementById("title").value.trim();
+        const category = document.getElementById("category").value.trim();
+
+        if (!title || !category) {
+          saveMsg.textContent = "กรอกชื่อเพลงกับ BPM ก่อน";
+          return;
+        }
+
+        if (!selectedAudioFile) {
+          saveMsg.textContent = "เลือกไฟล์เพลงก่อน โดยคลิกหรือเอาไฟล์มาลากวาง";
+          return;
+        }
+
+        saveMsg.textContent = "กำลังอัปโหลดไฟล์เพลง...";
+        const audioUrl = await uploadAudioToStorage(selectedAudioFile);
+
+        saveMsg.textContent = "อัปโหลดสำเร็จ กำลังบันทึกข้อมูลเพลง...";
+
+        let coverUrl = document.getElementById("coverUrl").value.trim();
+
+        if (!coverUrl && selectedCoverFile) {
+          saveMsg.textContent = "Uploading cover image...";
+          coverUrl = await uploadCoverToStorage(selectedCoverFile);
+        }
+
+        const newSong = {
+          title,
+          artist: document.getElementById("artist").value.trim(),
+          price: Number(document.getElementById("price").value || 0),
+          duration: document.getElementById("duration").value.trim(),
+          duration_secs: Number(document.getElementById("durationSecs").value || 0),
+          category,
+          audio_url: audioUrl,
+          cover_url: coverUrl,
+          product_details: document.getElementById("productDetails").value.trim()
+        };
+
+        const { error } = await supabaseClient
+          .from("products")
+          .insert(newSong);
+
+        if (error) throw error;
+
+        saveMsg.textContent = "บันทึกเพลงเรียบร้อยแล้ว";
+        resetProgress();
+
+        document.getElementById("title").value = "";
+        document.getElementById("duration").value = "";
+        document.getElementById("durationSecs").value = "";
+        document.getElementById("category").value = "";
+        document.getElementById("coverUrl").value = "";
+        document.getElementById("productDetails").value = "";
+        audioFileInput.value = "";
+        if (coverFileInput) coverFileInput.value = "";
+        selectedAudioFile = null;
+        selectedCoverFile = null;
+        fileInfo.classList.add("hidden");
+        fileInfo.textContent = "";
+        if (coverFileInfo) {
+          coverFileInfo.classList.add("hidden");
+          coverFileInfo.textContent = "";
+        }
+      } catch (error) {
+        console.error(error);
+        saveMsg.textContent = "บันทึกไม่สำเร็จ: " + error.message;
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      checkSession();
+    });
+
+    checkSession();
+  </script>
+</body>
+</html>
